@@ -157,7 +157,7 @@ fun fourButtonsRow() {
             textData = if (upperLower) "BUTTON1" else "Button1"
             upperLower =!upperLower
         },
-            Modifier.drawOpacity(0.5f).padding(8.dp).background(teal200).padding(4.dp).background(purple500)) {
+            Modifier.drawOpacity(1f).padding(8.dp).background(teal200).padding(4.dp).background(purple500)) {
             Text(text = textData, Modifier.background(purple700).padding(8.dp).background(purple200))
         }
         TextButton(onClick = {}) { Text("Button2") }
