@@ -35,8 +35,6 @@ import com.example.playground.ui.purple200
 import com.example.playground.ui.purple500
 import com.example.playground.ui.purple700
 import com.example.playground.ui.teal200
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                     //                   Greeting("Android")
                     //                  constraintInlineDsl()
                     //                  constraintTest()
-                    fourButtonsCL(emptyList())
+                    fourButtonsCLWithDSL(emptyList())
                 }
             }
         }
@@ -58,14 +56,6 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun Greeting(name: String) {
     Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    PlaygroundTheme {
-        Greeting("Android")
-    }
 }
 
 // This link: https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary.html#constraintlayout
@@ -125,17 +115,77 @@ fun constraintTest() {
     }
 }
 
-data class MyText(var textData: String): ReadOnlyProperty<Nothing?, String> {
-    override  fun getValue(thisRef: Nothing?, property: KProperty<*>): String = textData
-    operator fun setValue(thisRef: Nothing?, property: KProperty<*>, value: String) {
-        textData = value
+object FourElementsNoDSL {
+    const val elementA = "ElementA"
+    const val elementB = "ElementB"
+    const val elementC = "ElementC"
+    const val elementD = "ElementD"
+
+    private val noDSLConstraintSet = ConstraintSet {
+
+        // Create references with defines ids, here using a string as id. Could be an Int as well,
+        // actually it's defined as 'Any'
+        val elemA = createRefFor(elementA)
+        val elemB = createRefFor(elementB)
+        val elemC = createRefFor(elementC)
+        val elemD = createRefFor(elementD)
+
+        // Simple chain only. Instead of this simple chain we can use (for example):
+        //     constrain(elemA) {start.linkTo(parent.start) }
+        // to set a constraint as known in XML
+
+//        constrain(elemA) {start.linkTo(parent.start, 16.dp) }
+//        constrain(elemB) {start.linkTo(elemA.end) }
+//        constrain(elemC) {start.linkTo(elemB.end) }
+//        constrain(elemD) {end.linkTo(parent.end) }
+        createHorizontalChain(elemA, elemB, elemC, elemD)
+    }
+
+    @Composable
+    fun fourButtonsCLNoDSL(doNotShow: List<String>) {
+        ConstraintLayout(constraintSet = noDSLConstraintSet, modifier = Modifier.fillMaxSize()) {
+
+            // This block contains the children
+            Text(text = "A",
+                    modifier = Modifier.layoutId(elementA)
+                            .drawOpacity(if (doNotShow.contains(elementA)) 0f else 1f)
+                            .padding(0.dp),
+                    style = TextStyle(fontSize = 20.sp)
+            )
+            Text(text = "B",
+                    modifier = Modifier.layoutId(elementB)
+                            .drawOpacity(if (doNotShow.contains(elementB)) 0f else 1f)
+                            .padding(0.dp),
+                    style = TextStyle(fontSize = 20.sp)
+            )
+            Text(text = "C",
+                    modifier = Modifier.layoutId(elementC)
+                            .drawOpacity(if (doNotShow.contains(elementC)) 0f else 1f)
+                            .padding(0.dp),
+                    style = TextStyle(fontSize = 20.sp)
+            )
+            Text(text = "D",
+                    modifier = Modifier.layoutId(elementD)
+                            .drawOpacity(if (doNotShow.contains(elementD)) 0f else 1f)
+                            .padding(0.dp),
+                    style = TextStyle(fontSize = 20.sp))
+
+        }
     }
 }
 
+//data class MyText(var textData: String): ReadOnlyProperty<Nothing?, String> {
+//    override  fun getValue(thisRef: Nothing?, property: KProperty<*>): String = textData
+//    operator fun setValue(thisRef: Nothing?, property: KProperty<*>, value: String) {
+//        textData = value
+//    }
+//}
+
 @Composable
-fun fourButtonsCL(doNotShow: List<String>) {
+fun fourButtonsCLWithDSL(doNotShow: List<String>) {
 
     ConstraintLayout(Modifier.fillMaxSize()) {
+
         val (btn1, btn2, btn3, btn4) = createRefs()
 
         TextButton(onClick = {}, Modifier.constrainAs(btn1) {}.background(teal200)) { Text("Button1") }
@@ -201,21 +251,38 @@ fun constraintInlineDsl() {
     }
 }
 
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    PlaygroundTheme {
+//        Greeting("Android")
+//    }
+//}
+
 @Preview(showBackground = true)
 @Composable
-fun previewThreeButtons() {
+fun previewFourButtonsDSL() {
     PlaygroundTheme {
-        fourButtonsCL(emptyList())
+        fourButtonsCLWithDSL(emptyList())
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun previewFourButtonsRow() {
+fun previewFourFieldsNoDSL() {
+    val noShow = listOf(FourElementsNoDSL.elementC)
     PlaygroundTheme {
-        fourButtonsRow()
+        FourElementsNoDSL.fourButtonsCLNoDSL(noShow)
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun previewFourButtonsRow() {
+//    PlaygroundTheme {
+//        fourButtonsRow()
+//    }
+//}
 
 //@Preview(showBackground = true)
 //@Composable
