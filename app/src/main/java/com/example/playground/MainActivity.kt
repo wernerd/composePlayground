@@ -3,16 +3,20 @@ package com.example.playground
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ConstraintLayout
 import androidx.compose.foundation.layout.ConstraintSet
 import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.atMost
+import androidx.compose.foundation.layout.defaultMinSizeConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -24,7 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -55,7 +62,38 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+
+    var counter by remember { mutableStateOf(1) }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Text(text = counter.toString(), modifier = Modifier.offset(y = 50.dp).padding(start = 16.dp).clickable(onClick = {
+            counter++
+        }))
+    }
+}
+
+
+@Composable
+fun TextWithPos(content: String, modifier: Modifier, x: Int, y: Int, clickFun: () -> Unit = {}) {
+
+    Box(modifier = Modifier.fillMaxSize()
+            .background(
+                    LinearGradient(
+                            0.0f to Color.Red,
+                            0.5f to Color.Green,
+                            1.0f to Color.Blue,
+                            startX = 0.0f,
+                            startY = with(DensityAmbient.current) { 0.0.dp.toPx() },
+                            endX = with(DensityAmbient.current) { 100.0.dp.toPx() },
+                            endY = with(DensityAmbient.current) { 100.0.dp.toPx() }
+                    )
+            )
+    ) {
+        Text(text = content, modifier = modifier
+                .defaultMinSizeConstraints(minHeight = y.dp)
+                .clickable(onClick = clickFun)
+                .padding(top = y.dp))
+    }
+
 }
 
 // This link: https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary.html#constraintlayout
@@ -258,6 +296,22 @@ fun constraintInlineDsl() {
 //        Greeting("Android")
 //    }
 //}
+
+@Preview
+@Composable
+fun TextPosPreview() {
+    PlaygroundTheme {
+            Column() {
+                var counter by remember { mutableStateOf(1) }
+                TextWithPos(content = "Hello", modifier = Modifier.padding(start = 16.dp, end = 16.dp), x = 0, y = 50) {
+                    counter++
+                }
+                Text(text = counter.toString(), modifier = Modifier
+                        .padding(16.dp))
+
+            }
+        }
+}
 
 @Preview(showBackground = true)
 @Composable
